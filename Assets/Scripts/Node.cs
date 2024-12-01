@@ -9,9 +9,9 @@ public class Node : MonoBehaviour
     public static event Action<Node> OnClicked = delegate { };
 
     public Vector3 Position => transform.position;
-    public IEnumerable<Node> Neighbors => neighbors;
+    public IEnumerable<KeyValuePair<Node, float>> Neighbors => neighbors;
 
-    HashSet<Node> neighbors = new HashSet<Node>();
+    List<KeyValuePair<Node, float>> neighbors = new List<KeyValuePair<Node, float>>();
 
     void OnMouseDown()
     {
@@ -21,9 +21,12 @@ public class Node : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        foreach (var node in neighbors)
+        foreach (var neighbor in neighbors)
         {
-            Debug.DrawLine(Position, node.Position);
+            Debug.DrawLine(Position, neighbor.Key.Position);
+            Node neighborNode = neighbor.Key;
+            float distance = neighbor.Value;
+            Debug.Log($"Neighbor: {neighborNode.name}, Distance: {distance}");
         }
     }
 
@@ -44,7 +47,8 @@ public class Node : MonoBehaviour
                 if (hit.collider == null) continue;
                 if (hit.collider.TryGetComponent<Node>(out var hitNode))
                 {
-                    neighbors.Add(hitNode);
+                    float distance = Vector3.Distance(this.Position, node.Position);
+                    neighbors.Add(new KeyValuePair<Node, float>(hitNode, distance));
                 }
             }
         }

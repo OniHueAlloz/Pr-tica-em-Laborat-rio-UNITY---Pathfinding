@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 public class Pathfinder<T>
 {
-    readonly Dictionary<T, HashSet<T>> map;
+    readonly Dictionary<T, HashSet<KeyValuePair<T, float>>> map;
 
-    public Pathfinder(Dictionary<T, HashSet<T>> map)
+    public Pathfinder(Dictionary<T, HashSet<KeyValuePair<T, float>>> map)
     {
         this.map = map;
     }
@@ -34,9 +34,11 @@ public class Pathfinder<T>
 
         var visited = new HashSet<T>();
         var parents = new Dictionary<T, T>();
-        var toVisit = new Queue<T>();
+        var distances = new Dictionary<T, float>();
+        var toVisit = new PriorityQueue<T>();
 
-        toVisit.Enqueue(from);
+        distances[from] = 0;
+        toVisit.Enqueue(from, 0);
 
         while (toVisit.Count > 0)
         {
@@ -50,10 +52,15 @@ public class Pathfinder<T>
 
             foreach (var neighbor in map[current])
             {
-                if (!visited.Contains(neighbor))
+                if (!visited.Contains(neighbor.Key))
                 {
-                    toVisit.Enqueue(neighbor);
-                    parents[neighbor] = current;
+                    float newDistance = distances[current] + neighbor.Value; 
+                    if (!distances.ContainsKey(neighbor.Key) || newDistance < distances[neighbor.Key])
+                    {
+                        distances[neighbor.Key] = newDistance;
+                        toVisit.Enqueue(neighbor.Key, newDistance);
+                        parents[neighbor.Key] = current;
+                    }
                 }
             }
         }

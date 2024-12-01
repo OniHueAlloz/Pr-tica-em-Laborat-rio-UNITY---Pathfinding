@@ -19,10 +19,17 @@ public class MapController : MonoBehaviour
         Node.OnClicked += HandleNodeClicked;
 
         var nodes = GameObject.FindObjectsOfType<Node>();
-        var connections = new Dictionary<Node, HashSet<Node>>();
+        var connections = new Dictionary<Node, HashSet<KeyValuePair<Node, float>>>();
         foreach (var node in nodes)
         {
-            connections.Add(node, new HashSet<Node>(node.Neighbors));
+            var neighborsWithDistance = new HashSet<KeyValuePair<Node, float>>();
+
+            foreach (var neighbor in node.Neighbors)
+            {
+                neighborsWithDistance.Add(neighbor);
+            }
+
+            connections.Add(node, neighborsWithDistance);
         }
         map = new Pathfinder<Node>(connections);
     }
